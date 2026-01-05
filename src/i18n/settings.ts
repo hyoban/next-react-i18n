@@ -12,6 +12,7 @@ export type Messages = Record<Namespace, Record<string, unknown>>
 export function getInitOptions(lng: Locale) {
   return {
     supportedLngs: languages,
+    // https://github.com/i18next/i18next/discussions/2035
     fallbackLng,
     lng,
     fallbackNS: defaultNS,
