@@ -1,13 +1,13 @@
 import type { MiddlewareHandler } from 'hono'
 import type { Locale } from '../i18n/settings'
-import { parseCookies } from 'cookie-es'
+import { parse } from 'cookie-es'
 import { unstable_getContextData as getContextData } from 'waku/server'
 import { fallbackLng, languages, LOCALE_COOKIE } from '../i18n/settings'
 
 function localeMiddleware(): MiddlewareHandler {
   return async (c, next) => {
     const data = getContextData() as { locale?: Locale }
-    const cookies = parseCookies(c.req.header('cookie') || '')
+    const cookies = parse(c.req.header('cookie') || '')
     const localeCookie = cookies[LOCALE_COOKIE]
 
     if (localeCookie && languages.includes(localeCookie as Locale)) {
