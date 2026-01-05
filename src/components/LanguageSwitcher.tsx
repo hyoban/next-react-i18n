@@ -16,8 +16,8 @@ export function LanguageSwitcher() {
 
   const handleLocaleChange = (newLocale: Locale) => {
     document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
-    router.reload()
     i18n.changeLanguage(newLocale)
+    router.reload()
   }
 
   const currentLocale = i18n.language as Locale
