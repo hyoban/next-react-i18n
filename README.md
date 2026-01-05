@@ -63,9 +63,6 @@ export type Namespace = (typeof namespaces)[number]
 export function getInitOptions(lng?: Locale) {
   return {
     supportedLngs: languages,
-    // If fallbackLng is set, it will always be loaded alongside the current language.
-    // Set to false if all translations are complete to avoid loading extra resources.
-    // https://github.com/i18next/i18next/discussions/2035
     fallbackLng,
     lng,
     fallbackNS: defaultNS,
@@ -74,6 +71,8 @@ export function getInitOptions(lng?: Locale) {
   } satisfies InitOptions
 }
 ```
+
+Note: If `fallbackLng` is set, it will always be loaded alongside the current language. Set to `false` if all translations are complete to avoid loading extra resources. See [i18next discussion](https://github.com/i18next/i18next/discussions/2035) for details.
 
 ## Step 3: Create Server-Side Utilities
 
@@ -102,9 +101,8 @@ export function getRequestLocale(): Locale {
   return getLocaleCache().locale ?? fallbackLng
 }
 
-// Implement locale retrieval based on your framework
 export async function getLocaleFromCookies(): Promise<Locale> {
-  // Get locale from cookies or other sources
+  // Implement locale retrieval based on your framework
   return fallbackLng
 }
 
@@ -180,8 +178,6 @@ export function createClientI18nInstanceSync(
 ): i18n {
   const instance = createInstance()
 
-  // When resources are provided, i18next skips async loading and initializes synchronously
-  // https://github.com/i18next/i18next/blob/5f44eb70189ff7b1a7ff289bd4b642bdc170c152/src/i18next.js#L225-L229
   instance
     .use(initReactI18next)
     .use(getBackend())
@@ -195,10 +191,7 @@ export function createClientI18nInstanceSync(
 }
 ```
 
-Key points:
-- When `resources` is provided, i18next's `init()` runs synchronously (no `await` needed)
-- `partialBundledLanguages: true` tells i18next that only some languages are bundled, allowing the backend to load others on demand
-- Custom backend handles on-demand loading of additional namespaces or languages
+When `resources` is provided, [i18next skips async loading](https://github.com/i18next/i18next/blob/5f44eb70189ff7b1a7ff289bd4b642bdc170c152/src/i18next.js#L225-L229) and `init()` runs synchronously (no `await` needed). Setting `partialBundledLanguages: true` tells i18next that only some languages are bundled, allowing the custom backend to load others on demand.
 
 ## Step 5: Create I18nProvider
 
