@@ -19,7 +19,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "cookie": "^1.1.1",
+    "cookie-es": "^2.0.0",
     "hono": "^4.11.3",
     "i18next": "^25.7.3",
     "react": "~19.2.3",
