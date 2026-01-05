@@ -1,10 +1,10 @@
-import type { i18n, Resource, ResourceLanguage, TFunction } from 'i18next'
+import type { i18n, TFunction } from 'i18next'
 import { createInstance } from 'i18next'
 import { cache } from 'react'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 import { unstable_getContextData as getContextData } from 'waku/server'
 
-import type { Locale, Namespace } from './settings'
+import type { Locale, Messages, Namespace } from './settings'
 import { defaultNS, fallbackLng, getInitOptions, namespaces } from './settings'
 
 // Request-level locale cache
@@ -28,8 +28,8 @@ export async function getLocaleFromCookies(): Promise<Locale> {
 }
 
 // Messages loading
-export const getResources = cache(async (lng: Locale, ns?: Namespace[]): Promise<Resource> => {
-  const messages = {} as ResourceLanguage
+export const getMessages = cache(async (lng: Locale, ns?: Namespace[]): Promise<Messages> => {
+  const messages = {} as Messages
 
   await Promise.all(
     (ns ?? namespaces).map(async (ns) => {
@@ -38,25 +38,25 @@ export const getResources = cache(async (lng: Locale, ns?: Namespace[]): Promise
     }),
   )
 
-  return { [lng]: messages }
+  return messages
 })
 
 // i18next instance
-async function createServerI18nInstance(lng: Locale, resources: Resource): Promise<i18n> {
+async function createServerI18nInstance(lng: Locale, messages: Messages): Promise<i18n> {
   const instance = createInstance()
 
   await instance
     .use(initReactI18next)
     .init({
       ...getInitOptions(lng),
-      resources,
+      resources: { [lng]: messages },
     })
 
   return instance
 }
 
 const getI18nextInstance = cache(async (lng: Locale) => {
-  const messages = await getResources(lng)
+  const messages = await getMessages(lng)
   return createServerI18nInstance(lng, messages)
 })
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { getLocaleFromCookies, getResources, setRequestLocale } from '#i18n/server'
+import { getLocaleFromCookies, getMessages, setRequestLocale } from '#i18n/server'
 
 import { I18nProvider } from '../i18n/I18nProvider'
 
@@ -48,7 +48,7 @@ export default async function RootLayout({
   const locale = await getLocaleFromCookies()
   setRequestLocale(locale)
 
-  const resources = await getResources(locale)
+  const messages = await getMessages(locale)
 
   return (
     <html lang={locale}>
@@ -59,7 +59,7 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       </head>
       <body>
-        <I18nProvider locale={locale} resources={resources}>
+        <I18nProvider locale={locale} messages={messages}>
           {children}
         </I18nProvider>
       </body>
