@@ -2,7 +2,7 @@ import type { i18n, Resource } from 'i18next'
 import { createInstance } from 'i18next'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 
-import type { Locale, Messages } from './settings'
+import type { Locale } from './settings'
 import { getInitOptions } from './settings'
 
 function getBackend() {
@@ -19,13 +19,9 @@ function getBackend() {
 
 export function createClientI18nInstanceSync(
   lng: Locale,
-  messages: Messages,
+  resources: Resource,
 ): i18n {
   const instance = createInstance()
-
-  const resources: Resource = {
-    [lng]: messages,
-  }
 
   instance
     .use(initReactI18next)
@@ -37,19 +33,4 @@ export function createClientI18nInstanceSync(
     })
 
   return instance
-}
-
-export function createClientI18nInstanceAsync(lng: Locale): {
-  instance: i18n
-  ready: Promise<void>
-} {
-  const instance = createInstance()
-
-  const ready = instance
-    .use(initReactI18next)
-    .use(getBackend())
-    .init(getInitOptions(lng))
-    .then(() => {})
-
-  return { instance, ready }
 }

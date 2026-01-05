@@ -1,4 +1,6 @@
-export const LOCALE_COOKIE = 'NEXT_LOCALE'
+import type { InitOptions } from 'i18next'
+
+export const LOCALE_COOKIE = 'i18next'
 
 export const fallbackLng = 'en'
 export const languages = [fallbackLng, 'zh'] as const
@@ -7,9 +9,8 @@ export const defaultNS = namespaces[0]
 
 export type Locale = (typeof languages)[number]
 export type Namespace = (typeof namespaces)[number]
-export type Messages = Record<Namespace, Record<string, unknown>>
 
-export function getInitOptions(lng: Locale) {
+export function getInitOptions(lng?: Locale) {
   return {
     supportedLngs: languages,
     // https://github.com/i18next/i18next/discussions/2035
@@ -18,5 +19,5 @@ export function getInitOptions(lng: Locale) {
     fallbackNS: defaultNS,
     defaultNS,
     ns: namespaces,
-  } as const
+  } satisfies InitOptions
 }
