@@ -3,6 +3,7 @@
 import type { Locale } from '#i18n/settings'
 import { languages, LOCALE_COOKIE } from '#i18n/settings'
 import { useTranslation } from '#i18n/useTranslation'
+import { useRouter } from 'waku'
 
 const localeNames: Record<Locale, string> = {
   en: 'English',
@@ -11,9 +12,11 @@ const localeNames: Record<Locale, string> = {
 
 export function LanguageSwitcher() {
   const { t, i18n } = useTranslation()
+  const router = useRouter()
 
   const handleLocaleChange = (newLocale: Locale) => {
     document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
+    router.reload()
     i18n.changeLanguage(newLocale)
   }
 

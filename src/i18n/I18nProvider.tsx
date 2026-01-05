@@ -35,6 +35,8 @@ export function I18nProvider({
   )
 }
 
+let cachedI18nInstance: ReturnType<typeof createClientI18nInstanceSync> | null = null
+
 function I18nProviderSync({
   children,
   locale,
@@ -44,12 +46,11 @@ function I18nProviderSync({
   locale: Locale
   messages: Messages
 }) {
-  const i18nInstance = useMemo(
-    () => createClientI18nInstanceSync(locale, messages),
-    [locale, messages],
-  )
+  if (!cachedI18nInstance || cachedI18nInstance.language !== locale) {
+    cachedI18nInstance = createClientI18nInstanceSync(locale, messages)
+  }
 
-  return <I18nextProvider i18n={i18nInstance}>{children}</I18nextProvider>
+  return <I18nextProvider i18n={cachedI18nInstance}>{children}</I18nextProvider>
 }
 
 function I18nProviderAsync({
