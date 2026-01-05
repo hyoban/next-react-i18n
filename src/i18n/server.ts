@@ -1,10 +1,10 @@
 import type { i18n, TFunction } from 'i18next'
 import type { Locale, Messages, Namespace } from './settings'
 import { createInstance } from 'i18next'
-import { cookies } from 'next/headers'
 import { cache } from 'react'
 import { initReactI18next } from 'react-i18next/initReactI18next'
-import { defaultNS, fallbackLng, getInitOptions, languages, LOCALE_COOKIE, namespaces } from './settings'
+import { unstable_getContextData as getContextData } from 'waku/server'
+import { defaultNS, fallbackLng, getInitOptions, namespaces } from './settings'
 
 // Request-level locale cache
 interface LocaleCache {
@@ -22,14 +22,8 @@ export function getRequestLocale(): Locale {
 }
 
 export async function getLocaleFromCookies(): Promise<Locale> {
-  const cookieStore = await cookies()
-  const localeCookie = cookieStore.get(LOCALE_COOKIE)?.value
-
-  if (localeCookie && languages.includes(localeCookie as Locale)) {
-    return localeCookie as Locale
-  }
-
-  return fallbackLng
+  const data = getContextData() as { locale?: Locale }
+  return data.locale ?? fallbackLng
 }
 
 // Messages loading

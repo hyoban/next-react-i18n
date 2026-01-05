@@ -3,7 +3,6 @@
 import type { Locale } from '#i18n/settings'
 import { languages, LOCALE_COOKIE } from '#i18n/settings'
 import { useTranslation } from '#i18n/useTranslation'
-import { useRouter } from 'next/navigation'
 
 const localeNames: Record<Locale, string> = {
   en: 'English',
@@ -15,14 +14,13 @@ interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({ currentLocale }: LanguageSwitcherProps) {
-  const router = useRouter()
   const { t } = useTranslation()
 
   const handleLocaleChange = (newLocale: Locale) => {
     // Set cookie
     document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
     // Refresh the page to apply new locale
-    router.refresh()
+    globalThis.location.reload()
   }
 
   return (

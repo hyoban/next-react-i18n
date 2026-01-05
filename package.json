@@ -1,5 +1,6 @@
 {
-  "name": "next-react-i18n",
+  "name": "react-i18n-rsc",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "imports": {
@@ -7,23 +8,25 @@
       "react-server": "./src/i18n/useTranslation.server.ts",
       "default": "./src/i18n/useTranslation.client.ts"
     },
-    "#i18n/request": "./src/i18n/request.ts",
     "#i18n/settings": "./src/i18n/settings.ts",
     "#i18n/server": "./src/i18n/server.ts"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "waku dev",
+    "build": "waku build",
+    "start": "waku start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "cookie": "^1.0.2",
+    "hono": "^4.7.0",
     "i18next": "^25.7.3",
-    "next": "16.1.1",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-i18next": "^16.5.1"
+    "react": "~19.2.3",
+    "react-dom": "~19.2.3",
+    "react-i18next": "^16.5.1",
+    "react-server-dom-webpack": "~19.2.3",
+    "waku": "1.0.0-alpha.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.7.3",

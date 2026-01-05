@@ -1,6 +1,6 @@
-# next-react-i18n
+# react-i18n-rsc
 
-A minimal i18n solution for Next.js App Router using [react-i18next](https://react.i18next.com/), with first-class support for both Server and Client Components.
+A minimal i18n solution for React Server Components using [react-i18next](https://react.i18next.com/), with first-class support for both Server and Client Components. Works with Waku and other RSC-compatible frameworks.
 
 ## Features
 
