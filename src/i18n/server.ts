@@ -7,7 +7,6 @@ import { unstable_getContextData as getContextData } from 'waku/server'
 import type { Locale, Namespace } from './settings'
 import { defaultNS, fallbackLng, getInitOptions, namespaces } from './settings'
 
-// Request-level locale cache
 interface LocaleCache {
   locale?: Locale
 }
@@ -27,7 +26,6 @@ export async function getLocaleFromCookies(): Promise<Locale> {
   return data.locale ?? fallbackLng
 }
 
-// Messages loading
 export const getResources = cache(async (lng: Locale, ns?: Namespace[]): Promise<Resource> => {
   const messages = {} as ResourceLanguage
 
@@ -41,7 +39,6 @@ export const getResources = cache(async (lng: Locale, ns?: Namespace[]): Promise
   return { [lng]: messages }
 })
 
-// i18next instance
 async function createServerI18nInstance(lng: Locale, resources: Resource): Promise<i18n> {
   const instance = createInstance()
 
