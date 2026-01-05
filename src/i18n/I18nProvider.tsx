@@ -1,105 +1,43 @@
 'use client'
 
+import './client'
+
+import type { Resource } from 'i18next'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
-import { I18nextProvider } from 'react-i18next'
+import { useSSR } from 'react-i18next'
 
-import { createClientI18nInstanceAsync, createClientI18nInstanceSync } from './client'
-import type { Locale, Messages } from './settings'
-import { fallbackLng } from './settings'
-
-interface I18nProviderProps {
-  children: ReactNode
-  locale: Locale
-  messages?: Messages | null
-  fallback?: ReactNode
-}
+import type { Locale } from './settings'
 
 export function I18nProvider({
   children,
   locale,
-  messages,
-  fallback = null,
-}: I18nProviderProps) {
-  if (messages) {
-    return (
-      <I18nProviderSync locale={locale} messages={messages}>
-        {children}
-      </I18nProviderSync>
-    )
+  resources,
+}: {
+  children: ReactNode
+  locale: Locale
+  resources?: Resource | null
+}) {
+  if (!resources) {
+    return <>{children}</>
   }
 
   return (
-    <I18nProviderAsync locale={locale} fallback={fallback}>
+    <I18nHydrator locale={locale} resources={resources}>
       {children}
-    </I18nProviderAsync>
+    </I18nHydrator>
   )
 }
 
-let cachedI18nInstance: ReturnType<typeof createClientI18nInstanceSync> | null = null
-
-function I18nProviderSync({
-  children,
+function I18nHydrator({
   locale,
-  messages,
+  resources,
+  children,
 }: {
   children: ReactNode
   locale: Locale
-  messages: Messages
+  resources: Resource
 }) {
-  if (!cachedI18nInstance || cachedI18nInstance.language !== locale) {
-    cachedI18nInstance = createClientI18nInstanceSync(locale, messages)
-  }
+  useSSR(resources, locale)
 
-  return <I18nextProvider i18n={cachedI18nInstance}>{children}</I18nextProvider>
-}
-
-function I18nProviderAsync({
-  children,
-  locale,
-  fallback,
-}: {
-  children: ReactNode
-  locale: Locale
-  fallback: ReactNode
-}) {
-  const storeRef = useRef({ isReady: false, locale: fallbackLng, listeners: new Set<() => void>() })
-  const store = storeRef.current
-
-  const i18nInstance = useMemo(() => {
-    const { instance } = createClientI18nInstanceAsync(fallbackLng)
-    return instance
-  }, [])
-
-  useEffect(() => {
-    if (store.locale === locale && i18nInstance.isInitialized) {
-      store.isReady = true
-      store.listeners.forEach(l => l())
-      return
-    }
-
-    store.isReady = false
-    store.listeners.forEach(l => l())
-
-    i18nInstance.changeLanguage(locale).then(() => {
-      store.locale = locale
-      store.isReady = true
-      store.listeners.forEach(l => l())
-    })
-  }, [locale, store, i18nInstance])
-
-  const ready = useSyncExternalStore(
-    (callback) => {
-      store.listeners.add(callback)
-      return () => store.listeners.delete(callback)
-    },
-    () => store.isReady,
-    () => false,
-  )
-
-  if (!ready) {
-    return <>{fallback}</>
-  }
-
-  return <I18nextProvider i18n={i18nInstance}>{children}</I18nextProvider>
+  return <>{children}</>
 }

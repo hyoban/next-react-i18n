@@ -7,9 +7,8 @@ export const defaultNS = namespaces[0]
 
 export type Locale = (typeof languages)[number]
 export type Namespace = (typeof namespaces)[number]
-export type Messages = Record<Namespace, Record<string, unknown>>
 
-export function getInitOptions(lng: Locale) {
+export function getInitOptions(lng?: Locale) {
   return {
     supportedLngs: languages,
     // https://github.com/i18next/i18next/discussions/2035
