@@ -249,7 +249,9 @@ export function useLocale(): Locale {
 }
 ```
 
-## Step 7: Configure Conditional Exports
+## Step 7: Configure Subpath Imports
+
+[Subpath imports](https://nodejs.org/api/packages.html#subpath-imports) allow you to define internal package mappings using the `imports` field in `package.json`, enabling environment-specific module resolution with conditions like `react-server`.
 
 Add the `imports` field to `package.json`:
 
