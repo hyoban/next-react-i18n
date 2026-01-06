@@ -3,9 +3,9 @@
 import { useTransition } from 'react'
 import { useRouter } from 'waku'
 
+import { useLocale, useTranslation } from '#i18n/hooks'
 import type { Locale } from '#i18n/settings'
 import { languages, LOCALE_COOKIE } from '#i18n/settings'
-import { useTranslation } from '#i18n/useTranslation'
 
 const localeNames: Record<Locale, string> = {
   en: 'English',
@@ -14,6 +14,7 @@ const localeNames: Record<Locale, string> = {
 
 export function LanguageSwitcher() {
   const { t, i18n } = useTranslation()
+  const currentLocale = useLocale()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -25,8 +26,6 @@ export function LanguageSwitcher() {
       router.reload()
     })
   }
-
-  const currentLocale = i18n.language as Locale
 
   return (
     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', opacity: isPending ? 0.7 : 1 }}>

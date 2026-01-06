@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslation } from '#i18n/useTranslation'
+import { useTranslation } from '#i18n/hooks'
 
 export function ClientDemo() {
   const { t } = useTranslation()

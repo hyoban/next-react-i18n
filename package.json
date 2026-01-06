@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#i18n/useTranslation": {
-      "react-server": "./src/i18n/useTranslation.server.ts",
-      "default": "./src/i18n/useTranslation.client.ts"
+    "#i18n/hooks": {
+      "react-server": "./src/i18n/hooks.server.ts",
+      "default": "./src/i18n/hooks.client.ts"
     },
     "#i18n/settings": "./src/i18n/settings.ts",
     "#i18n/server": "./src/i18n/server.ts"

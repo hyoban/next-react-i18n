@@ -4,22 +4,11 @@ import { cache } from 'react'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 import { unstable_getContextData as getContextData } from 'waku/server'
 
+import { serverOnlyContext } from './server-only-context'
 import type { Locale, Namespace } from './settings'
 import { defaultNS, fallbackLng, getInitOptions, namespaces } from './settings'
 
-interface LocaleCache {
-  locale?: Locale
-}
-
-const getLocaleCache = cache((): LocaleCache => ({}))
-
-export function setRequestLocale(locale: Locale): void {
-  getLocaleCache().locale = locale
-}
-
-export function getRequestLocale(): Locale {
-  return getLocaleCache().locale ?? fallbackLng
-}
+export const [getRequestLocale, setRequestLocale] = serverOnlyContext<Locale>(fallbackLng)
 
 export async function getLocaleFromCookies(): Promise<Locale> {
   const data = getContextData() as { locale?: Locale }

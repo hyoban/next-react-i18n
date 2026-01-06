@@ -1,7 +1,7 @@
 import { use } from 'react'
 
 import { getI18nConfig, getRequestLocale } from './server'
-import type { Namespace } from './settings'
+import type { Locale, Namespace } from './settings'
 import { defaultNS } from './settings'
 
 export function useTranslation(ns: Namespace | Namespace[] = defaultNS) {
@@ -12,4 +12,9 @@ export function useTranslation(ns: Namespace | Namespace[] = defaultNS) {
     t: config.t,
     i18n: config.i18n,
   }
+}
+
+// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- naming consistency with client
+export function useLocale(): Locale {
+  return getRequestLocale()
 }

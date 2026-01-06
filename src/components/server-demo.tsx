@@ -1,4 +1,4 @@
-import { useTranslation } from '#i18n/useTranslation'
+import { useTranslation } from '#i18n/hooks'
 
 export function ServerDemo() {
   const { t } = useTranslation()

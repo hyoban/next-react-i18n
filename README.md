@@ -10,7 +10,7 @@ This architecture is heavily inspired by [next-intl](https://github.com/amannn/n
 
 ## Key Features
 
-- Unified `useTranslation` API for Server and Client Components
+- Unified `useTranslation` and `useLocale` API for Server and Client Components
 - Server-side resource loading with no flash of untranslated content
 - Uses `package.json` imports with `react-server` condition for environment detection
 
@@ -18,7 +18,7 @@ This architecture is heavily inspired by [next-intl](https://github.com/amannn/n
 
 1. **Server-side loading**: Layout fetches locale and translation resources on the server
 2. **Resource passing**: Resources are passed to the client via `I18nProvider`
-3. **Conditional exports**: `#i18n/useTranslation` automatically selects the correct implementation based on environment
+3. **Conditional exports**: `#i18n/hooks` automatically selects the correct implementation based on environment
 4. **Synchronous initialization**: Client uses pre-loaded resources for synchronous init, avoiding flicker
 
 ## Step 1: Create Directory Structure
@@ -30,8 +30,8 @@ src/
 │   ├── server.ts                # Server-side utilities
 │   ├── client.ts                # Client-side utilities
 │   ├── I18nProvider.tsx         # Client Provider
-│   ├── useTranslation.server.ts # Server Component implementation
-│   ├── useTranslation.client.ts # Client Component implementation
+│   ├── hooks.server.ts          # Server hooks (useTranslation, useLocale)
+│   ├── hooks.client.ts          # Client hooks (useTranslation, useLocale)
 │   ├── resources.ts             # TypeScript resource definitions
 │   └── i18next.d.ts             # Type declarations
 └── locales/
@@ -79,27 +79,16 @@ Note: If `fallbackLng` is set, it will always be loaded alongside the current la
 Create `src/i18n/server.ts`:
 
 ```ts
-import type { i18n, Resource, ResourceLanguage } from 'i18next'
+import type { Resource, ResourceLanguage } from 'i18next'
 import { createInstance } from 'i18next'
 import { cache } from 'react'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 
+import { serverOnlyContext } from './server-only-context'
 import type { Locale, Namespace } from './settings'
 import { defaultNS, fallbackLng, getInitOptions, namespaces } from './settings'
 
-interface LocaleCache {
-  locale?: Locale
-}
-
-const getLocaleCache = cache((): LocaleCache => ({}))
-
-export function setRequestLocale(locale: Locale): void {
-  getLocaleCache().locale = locale
-}
-
-export function getRequestLocale(): Locale {
-  return getLocaleCache().locale ?? fallbackLng
-}
+export const [getRequestLocale, setRequestLocale] = serverOnlyContext<Locale>(fallbackLng)
 
 export async function getLocaleFromCookies(): Promise<Locale> {
   // Implement locale retrieval based on your framework
@@ -145,7 +134,7 @@ export const getI18nConfig = cache(async (lng: Locale, ns: Namespace | Namespace
 ```
 
 Key points:
-- Uses React's `cache()` for request-scoped memoization
+- `serverOnlyContext` creates request-scoped state using React's `cache()`
 - `setRequestLocale` and `getRequestLocale` share locale within request lifecycle
 
 ## Step 4: Create Client-Side Utilities
@@ -228,15 +217,15 @@ export function I18nProvider({
 }
 ```
 
-## Step 6: Create useTranslation Implementations
+## Step 6: Create Hooks Implementations
 
-**Server implementation** `src/i18n/useTranslation.server.ts`:
+**Server implementation** `src/i18n/hooks.server.ts`:
 
 ```ts
 import { use } from 'react'
 
 import { getI18nConfig, getRequestLocale } from './server'
-import type { Namespace } from './settings'
+import type { Locale, Namespace } from './settings'
 import { defaultNS } from './settings'
 
 export function useTranslation(ns: Namespace | Namespace[] = defaultNS) {
@@ -248,19 +237,28 @@ export function useTranslation(ns: Namespace | Namespace[] = defaultNS) {
     i18n: config.i18n,
   }
 }
+
+export function useLocale(): Locale {
+  return getRequestLocale()
+}
 ```
 
-**Client implementation** `src/i18n/useTranslation.client.ts`:
+**Client implementation** `src/i18n/hooks.client.ts`:
 
 ```ts
 'use client'
 
 import { useTranslation as useTranslationOriginal } from 'react-i18next'
 
-import type { Namespace } from './settings'
+import type { Locale, Namespace } from './settings'
 
 export function useTranslation(ns?: Namespace | Namespace[]) {
   return useTranslationOriginal(ns)
+}
+
+export function useLocale(): Locale {
+  const { i18n } = useTranslationOriginal()
+  return i18n.language as Locale
 }
 ```
 
@@ -271,9 +269,9 @@ Add the `imports` field to `package.json`:
 ```json
 {
   "imports": {
-    "#i18n/useTranslation": {
-      "react-server": "./src/i18n/useTranslation.server.ts",
-      "default": "./src/i18n/useTranslation.client.ts"
+    "#i18n/hooks": {
+      "react-server": "./src/i18n/hooks.server.ts",
+      "default": "./src/i18n/hooks.client.ts"
     },
     "#i18n/settings": "./src/i18n/settings.ts",
     "#i18n/server": "./src/i18n/server.ts"
@@ -284,7 +282,7 @@ Add the `imports` field to `package.json`:
 This is the core mechanism:
 - `react-server` condition applies in Server Component environments
 - `default` condition applies in Client Component environments
-- The same `#i18n/useTranslation` import automatically selects the correct implementation
+- The same `#i18n/hooks` import automatically selects the correct implementation
 
 ## Step 8: Use in Layout
 
@@ -317,15 +315,17 @@ export default async function RootLayout({
 **Server Component**:
 
 ```tsx
-import { useTranslation } from '#i18n/useTranslation'
+import { useLocale, useTranslation } from '#i18n/hooks'
 
 export function ServerDemo() {
   const { t } = useTranslation()
+  const locale = useLocale()
 
   return (
     <div>
       <h3>{t('Server Component')}</h3>
       <p>{t('Welcome to React')}</p>
+      <p>Current locale: {locale}</p>
     </div>
   )
 }
@@ -336,15 +336,17 @@ export function ServerDemo() {
 ```tsx
 'use client'
 
-import { useTranslation } from '#i18n/useTranslation'
+import { useLocale, useTranslation } from '#i18n/hooks'
 
 export function ClientDemo() {
   const { t } = useTranslation()
+  const locale = useLocale()
 
   return (
     <div>
       <h3>{t('Client Component')}</h3>
       <p>{t('Welcome to React')}</p>
+      <p>Current locale: {locale}</p>
     </div>
   )
 }
